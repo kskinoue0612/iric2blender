@@ -44,6 +44,7 @@ class Import_Plataue_Obj_Buidling(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -55,6 +56,7 @@ class Import_Plataue_Obj_Buidling(bpy.types.Operator):
         def read_obj_building(filepath_folder):
 
             def read_bldg(filepath_folder):
+                # path1 = "./obj/bldg"
                 files1 = os.listdir(filepath_folder)
 
                 #collection 作成

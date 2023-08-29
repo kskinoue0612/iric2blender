@@ -40,6 +40,7 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -96,6 +97,36 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
             MJ=int(firstline[1])
             return MI,MJ
 
+        # # vertsの作成
+        # def make_vert_depth(MI,MJ,df,min_depth,obj_scale):
+        #     """ df_row_n = 4:Depth(Max), 5:Depth, 6:Elevation, 7:WaterSurfaceElevation """
+        #     verts=[]
+        #     # min_depth = 0.1
+        #
+        #     k=1
+        #     min_z = df[1][6]
+        #     for j in range(MJ):
+        #         for i in range(MI):
+        #             k=i+MI*j
+        #             if df[k][6] < min_z:
+        #                 min_z = df[k][6]
+        #
+        #     k=1
+        #     for j in range(MJ):
+        #         for i in range(MI):
+        #             k=i+MI*j
+        #             #原点補正なし
+        #             verts.append([df[k][2]*obj_scale,df[k][3]*obj_scale,(df[k][6]+df[k][5])*obj_scale])
+        #             # print(([df[k][2]*obj_scale,df[k][3]*obj_scale,(df[k][6]+df[k][5])*obj_scale]))
+        #
+        #             #原点補正あり(原点に近づける)
+        #             # verts.append([(df[k][2]-df[1][2])*obj_scale,(df[k][3]-df[1][3])*obj_scale,(df[k][6]+df[k][5]-min_z)*obj_scale])
+        #
+        #
+        #     # print(verts)
+        #     return verts
+
+
 
         # vertsの作成
         def make_vert(MI,MJ,df,df_row_n,obj_scale):
@@ -143,6 +174,35 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
                     faces.append([k,k+1,k+1+MI,k+MI])
             return faces
 
+        #
+        # def set_faces_depth_2DH(MI,MJ,df):
+        #     faces=[]
+        #     min_depth = 0.1
+        #
+        #     k=1
+        #     for j in range(MJ-1):
+        #         for i in range(MI-1):
+        #             k=i+MI*j
+        #             if df[k][4] > min_depth:
+        #                 # print([k,k+1,k+1+MI,k+MI],k,i,j)
+        #                 faces.append([k,k+1,k+1+MI,k+MI])
+        #     return faces
+        #
+        #
+        #
+        # def set_faces_depth(MI,MJ,df):
+        #     faces=[]
+        #     min_depth = 0.1
+        #
+        #     k=1
+        #     for j in range(MJ-1):
+        #         for i in range(MI-1):
+        #             k=i+MI*j
+        #             if df[k][5] > min_depth:
+        #                 # print([k,k+1,k+1+MI,k+MI],k,i,j)
+        #                 faces.append([k,k+1,k+1+MI,k+MI])
+        #     return faces
+
 
         def make_ojb_each_files(readfile,df_row_n,obj_name):
             df = make_verts_numpy(readfile)
@@ -162,6 +222,53 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
 
             return cube_obj
 
+        # def make_vert_depth_2DH(MI,MJ,df,min_depth,obj_scale):
+        #     """ df_row_n = 4:Depth(Max), 5:Depth, 6:Elevation, 7:WaterSurfaceElevation """
+        #     verts=[]
+        #     # min_depth = 0.1
+        #
+        #     k=1
+        #     min_z = df[1][4]
+        #     for j in range(MJ):
+        #         for i in range(MI):
+        #             k=i+MI*j
+        #             if df[k][4] < min_z:
+        #                 min_z = df[k][4]
+        #
+        #     k=1
+        #     for j in range(MJ):
+        #         for i in range(MI):
+        #             k=i+MI*j
+        #             #原点補正なし
+        #             # verts.append([df[k][2]*obj_scale,df[k][3]*obj_scale,(df[k][6]+df[k][5])*obj_scale])
+        #             verts.append([df[k][2]*obj_scale,df[k][3]*obj_scale,(df[k][4]+df[k][5])*obj_scale])
+        #
+        #             #原点補正あり(原点に近づける)
+        #             # verts.append([(df[k][2]-df[1][2])*obj_scale,(df[k][3]-df[1][3])*obj_scale,(df[k][6]+df[k][5]-min_z)*obj_scale])
+        #
+        #
+        #     # print(verts)
+        #     return verts
+        #
+        # def make_ojb_each_files_depth(readfile,df_row_n,obj_name):
+        #     df = make_verts_numpy(readfile)
+        #     MI,MJ = read_MI_MJ(readfile)
+        #
+        #     #set faces & verts
+        #     # verts = make_vert_depth(MI,MJ,df,min_depth = 0.1,obj_scale=1)
+        #     verts = make_vert_depth_2DH(MI,MJ,df,min_depth = 0.1,obj_scale=1)
+        #     # verts = make_vert_depth(MI,MJ,df,min_depth = 0.1,obj_scale=0.01)
+        #
+        #
+        #     # faces=set_faces(MI,MJ)
+        #     faces = set_faces_depth(MI,MJ,df)
+        #     faces=set_faces_depth_2DH(MI,MJ,df)
+        #
+        #     cube_obj = make_obj(verts,faces,readfile,obj_name)
+        #     # local_loc = cube_obj.matrix_world.inverted() @ Vector((1,5,3)) #座標の移動
+        #
+        #     return cube_obj
+
 
         def make_elecation_ob(filepath_folder):
             # iricのcsvファイル(地盤データ:elevation)からオブジェクトを作成
@@ -169,6 +276,7 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
             ob1 = make_ojb_each_files(readfile=f'{filepath_folder}/Result_{i}.csv',df_row_n=5,obj_name=f"cube_{i}_Elevation")
 
             # 地盤データ用のマテリアルをセット
+            # mat_el = materials_elevation()
             mat_el = material.materials_elevation()
 
 
@@ -179,6 +287,9 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
             ob1.modifiers.new("subd", type='SUBSURF')
             ob1.modifiers['subd'].levels = 3
 
+            # #object座標移動
+            # bpy.context.scene.collection.objects.link(ob1) # シーンにオブジェクトを配置
+            # test_move_object(new_origin = Vector((0,0,0)),obj = ob1)
 
             # 現在のシーンにコレクションをリンク
             my_sub_coll.objects.link(ob1)
@@ -187,7 +298,42 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
             return ob1
 
 
+        # def watersurface_make_ob(filepath_folder):
+        #     # iricのcsvファイル(地盤データ:elevationと水深データ)からオブジェクトを作成
+        #     ob2 = make_ojb_each_files_depth(readfile=f'{filepath_folder}/Result_{i}.csv',df_row_n=7,obj_name=f"cube_{i}_WaterSurfaceElevation")
+        #
+        #     # 水面データ用のマテリアルをセット
+        #     # mat_ws = materials_watersurface()
+        #     mat_ws = material.materials_watersurface()
+        #
+        #     # 水面データから生成したオブジェクトと水面データ用のマテリアルを統合
+        #     ob2.data.materials.append(mat_ws)
+        #
+        #     #モディファイヤーを追加。今回はサブディビジョンサーフェスを適応。（ポリゴンが細分化されて表面がなめらかになる）
+        #     ob2.modifiers.new("subd", type='SUBSURF')
+        #     ob2.modifiers['subd'].levels = 3
+        #
+        #     #モディファイヤーを追加。DISPLACEのVoronoiを追加。水面のさざなみを表現
+        #     """https://ja.blingin.in/blender_threads/questions/118250/link-a-texture-to-displace-modifier-using-python"""
+        #     tex = bpy.data.textures.new("Voronoi", 'VORONOI')
+        #     tex.distance_metric = 'DISTANCE_SQUARED'
+        #     modifier = ob2.modifiers.new(name="Displace", type='DISPLACE')
+        #     modifier.texture = bpy.data.textures['Voronoi']
+        #
+        #     import random
+        #     """ゆらめき用"""
+        #     # modifier.strength = 0.05 +random.random()*0.01
+        #     modifier.strength = 0.3 +random.random()*0.1
+        #     modifier.mid_level = 0.
+        #
+        #
+        #     # 現在のシーンにコレクションをリンク
+        #     my_sub_coll.objects.link(ob2)
+        #
+        #     return ob2
+
         #ファイル数の確認
+        # max_file = return_max_file(path="in")
         max_file = return_max_file(path=filepath_folder)
         max_file = max_file -1
 
@@ -248,6 +394,8 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
                    ob.hide_viewport  = True
                    ob.hide_render    = True
 
+                   # ob.keyframe_insert(data_path = "location",index = -1)
+                   # ob.keyframe_insert(data_path = "scale",index = -1)
                    ob.keyframe_insert(data_path = "hide_viewport",index = -1)
                    ob.keyframe_insert(data_path = "hide_render",index = -1)
 
@@ -257,6 +405,8 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
            if j < max_file -1:
                if frame_number >= 0*(j-1) and frame_number < 20*(j):
                    for ob in l_sub_coll[j].objects:
+              # if frame_number >= 20 and frame_number < 40:
+              #     for ob in l_sub_coll[1].objects:
 
                        bpy.context.scene.frame_set(frame_number)
                        ob.hide_viewport  = False
@@ -267,6 +417,7 @@ class ImportResult2DH_DEM_iRIC2blender(bpy.types.Operator):
 
            j+=1
 
+           # print_objects()
 
            frame_number += frame_number_input
 

@@ -48,6 +48,7 @@ class Download_OsmBuilding(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -189,6 +190,12 @@ class Download_OsmBuilding(bpy.types.Operator):
                     array2 = np.append(array2, array1, axis=0)
                     k+=1
                 n+=1
+            # pid	vid	x	y	name	value
+            # 1	0	-77490.03125	-108975.7031	obj_1	1
+            # 1	1	-77496.78125	-108979.8047	obj_1	1
+
+            # 0	202548889	10.8	141.247742	43.149507
+            # 0	202548889	10.8	141.247428	43.149732
 
             # array2 = array2.reshape(-1, 5) #一次元配列から５次元配列へ変換（行数未指定-1）
             return array2,n

@@ -21,8 +21,8 @@
 # Blenderアドオンに関する情報の宣言・設定
 bl_info = {
     "name": "iric2blender",
-    "author": "toshimushi",
-    "version": (0, 1),
+    "author": "Toshiyuki Tanaka",
+    "version": (3, 0),
     "blender": (3, 2, 2),
     "location": "3Dビュー > オブジェクト",
     "description": "iRICとblenderの相互連携用アドオン",
@@ -108,9 +108,29 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+        # 閾値の設定
+        layout.separator()
+        layout.label(text="閾値の設定:")
+        layout.prop(scene, "para_prop_float", text="para")
+        
+        # 植生描画量の設定
+        layout.separator()
+        layout.label(text="植生描画量の設定:")
+        layout.label(text="1:All")
+        layout.label(text="0:Random")
+        layout.label(text="2~100:n個に一度描画")
+        layout.prop(scene, "va_prop_int", text="v_amount")
+        
+        # 植生の3Dモデルの設定
+        layout.separator()
+        layout.label(text="植生3Dモデルの設定:")
+        layout.label(text="1:light")
+        layout.label(text="2:heavy")
+        layout.prop(scene, "vm_prop_int", text="v_model")
+
         # コンターの水深の設定
         layout.separator()
-        layout.label(text="コンターの水深の設定:")
+        layout.label(text="コンター水深の設定:")
         layout.prop(scene, "max_depth_prop_float", text="max_depth")
         layout.prop(scene, "min_depth_prop_float", text="min_depth")
 
@@ -172,6 +192,30 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
 # サイドパネル(iRIC_setting)のプロパティの初期化
 def init_props():
     scene = bpy.types.Scene
+
+    scene.para_prop_float = FloatProperty(
+        name="para",
+        description="プロパティ（float）",
+        default=0.5,
+        min=0.01,
+        max=1.0
+    )
+    
+    scene.va_prop_int = IntProperty(
+        name="v_amount",
+        description="プロパティ（int）",
+        default=1,
+        min=0,
+        max=100
+    )
+
+    scene.vm_prop_int = IntProperty(
+        name="v_model",
+        description="プロパティ（int）",
+        default=1,
+        min=1,
+        max=2
+    )
 
     scene.max_depth_prop_float = FloatProperty(
         name="max_depth",
@@ -278,6 +322,9 @@ def init_props():
 # プロパティを削除
 def clear_props():
     scene = bpy.types.Scene
+    del scene.para_prop_float
+    del scene.va_prop_int
+    del scene.vm_prop_int
     del scene.max_depth_prop_float
     del scene.min_depth_prop_float
     del scene.max_velocity_prop_float

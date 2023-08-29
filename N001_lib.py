@@ -113,7 +113,7 @@ class Make_mesh_object:
 
 def return_max_file(path):
     import os
-    
+    # path="in"
     max_file = 0
     files = os.listdir(path)
     files_file = [f for f in files if os.path.isfile(os.path.join(path, f))]
@@ -246,6 +246,7 @@ class Make_WaterSurface_depth_velocity_from_iRIC_result:
         df         = df[:, self.df_col_list]
 
         #クラスの呼び出し
+        # ob = Make_mesh_object_depth(df, MI, MJ, obj_name, obj_scale=1, min_depth=0.1)
         ob = Make_mesh_object_depth_velocity(df, MI, MJ, obj_name, obj_scale=1, min_depth=0.1)
         
         obj, faces_depth,faces_velocity = ob.make_obj_each_files_depth_velocity()

@@ -45,6 +45,7 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -169,34 +170,49 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
         def grow_tree(ob1,faces_tree,addon_dirpath):
 
             # 読み込む植生モデルの整理
-            low_poly_trees     = ["pine_tree_lite"]
-            mat_low_poly_trees = ['pine-leaf']
-            # low_poly_trees     = ["pine_tree_lite","yoshi_lite"]
-            # mat_low_poly_trees = ['pine-leaf',"mat_yoshi"]
-
+            low_poly_trees     = ["pine_tree_lite","yoshi_lite"]
+            mat_low_poly_trees = ['pine-leaf',"mat_yoshi"]
             high_poly_trees    = ["willow","pine","maple","broadleaf_tree"]
+            new_trees           = ["hardwood","confier","grass","normal"]
 
-            # 低ポリゴンの木をインポート
-            for tree_name in low_poly_trees:
-                # bpy.ops.wm.collada_import(filepath='tree_data/low_poly_tree/pine_tree_lite/pine_tree_lite.dae')
-                bpy.ops.wm.collada_import(filepath=f'{addon_dirpath}/tree_data/low_poly_tree/{tree_name}/{tree_name}.dae')
+            # # 低ポリゴンの木をインポート
+            # for tree_name in low_poly_trees:
+            #     # bpy.ops.wm.collada_import(filepath='tree_data/low_poly_tree/pine_tree_lite/pine_tree_lite.dae')
+            #     bpy.ops.wm.collada_import(filepath=f'{addon_dirpath}/tree_data/low_poly_tree/{tree_name}/{tree_name}.dae')
 
-            # 低ポリゴンの木にマテリアルを適用
-            for mat_name in mat_low_poly_trees:
-                material_tree_link_alpha(material_name=f'{mat_name}')
+            # # 低ポリゴンの木にマテリアルを適用
+            #for mat_name in mat_low_poly_trees:
+            #    material_tree_link_alpha(material_name=f'{mat_name}')
 
-            # 高ポリゴンの木をインポート
-            for tree_name in high_poly_trees:
-                bpy.ops.import_scene.fbx(filepath=f'{addon_dirpath}/tree_data/high_poly_tree/{tree_name}.fbx')
-
-            # 全ての植生を格納するリストを作成
-            trees_all=high_poly_trees
-            trees_all.extend(low_poly_trees)
-            self.report({'INFO'}, f"trees_all:{trees_all}")
-
+            # 高ポリゴンの木をもしくは低ポリゴンのnewdataの木をインポート
+            
+            vm=bpy.context.scene.vm_prop_int
+            if vm==1:
+                for tree_name in new_trees:
+                    bpy.ops.import_scene.fbx(filepath=f'{addon_dirpath}/tree_data/new_tree/{tree_name}.fbx')
+                # 全ての植生を格納するリストを作成
+                trees_all=new_trees
+                trees_all.extend(low_poly_trees)
+                #trees_all.extend(new_trees)
+                self.report({'INFO'}, f"trees_all:{trees_all}")
+                
+            else :
+                for tree_name in high_poly_trees:
+                    bpy.ops.import_scene.fbx(filepath=f'{addon_dirpath}/tree_data/high_poly_tree/{tree_name}.fbx')
+                # 全ての植生を格納するリストを作成
+                trees_all=high_poly_trees
+                trees_all.extend(low_poly_trees)
+                #trees_all.extend(new_trees)
+                self.report({'INFO'}, f"trees_all:{trees_all}")
+                
+            
+            #for tree_name in high_poly_trees:
+            #    bpy.ops.import_scene.fbx(filepath=f'{addon_dirpath}/tree_data/high_poly_tree/{tree_name}.fbx')
+            
 
             mesh = ob1.data
             j=0
+            lista=[]
             for face in mesh.polygons:
 
                 tree_density = 0.01
@@ -217,7 +233,33 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
                 grow_tree = ns
 
                 # 確率から植生を植えるかどうかランダムに決める。植生を植える場合はgrow_tree=1を返す。
-                grow_tree = random.randrange(1,int(1/grow_tree),1)
+                #grow_tree = random.randrange(1,int(1/grow_tree),1)
+                #grow_tree =bpy.types.Scene.para_prop_float = FloatProperty(name="para",description="プロパティ（float）", default=0.5,min=0.01,max=1.0)
+                
+                #　設定した閾値より植生密生度が大きい場合植生を植える(そのときにすべて生やすかランダムか)
+                va=bpy.context.scene.va_prop_int
+                para=bpy.context.scene.para_prop_float
+                count=0
+                ratio=0.4
+                """
+                if va==1:
+                    if faces_tree[j][4]>para:grow_tree=1,count+=1
+                    else:grow_tree=0
+                elif va==0:
+                    if faces_tree[j][4]>para:grow_tree=random.randint(0 ,1)
+                    else:grow_tree=0
+                else:
+                    if faces_tree[j][4]>para:
+                        if j % va == 0 and j != 0:grow_tree=1
+                        else:grow_tree=0                   
+                    else:grow_tree=0
+                """
+                # しきい値を超えた値のセルは ratio の割合で生やす
+                if faces_tree[j][4] > para:
+                    if random.random() < ratio:
+                        grow_tree = 1
+                    else:grow_tree=0
+
 
                 # 植生を植える場合
                 if grow_tree==1:
@@ -237,6 +279,8 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
                     # 植生を配置する
                     set_trees_into_cell(tree_cell_maxmin,tree_n,tree_name)
                 j+=1
+                
+            
 
             #木のサンプルを削除　
             for tree_name in trees_all:

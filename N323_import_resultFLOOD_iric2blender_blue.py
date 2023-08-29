@@ -42,6 +42,7 @@ class ImportResult_iRIC2blender_blue(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -69,8 +70,15 @@ class ImportResult_iRIC2blender_blue(bpy.types.Operator):
         color_set = N001_lib.setting_color_contor()
 
         mat_list    = []
+        # mat_list    = material.set_material(mat_list,color_set)
         mat_list    = material.set_material_blue(mat_list,color_set)
         result_type = "depth"
+
+
+        # N001_lib.create_mesh_result(df_col_list,usecols,filepath_folder,mat_list,color_set)
+        # N001_lib.create_mesh_result(df_col_list,usecols,filepath_folder,mat_list,color_set)
+        # ws = N001_lib.Make_WaterSurface_depth_from_iRIC_result(df_col_list,usecols,filepath_folder,mat_list,color_set)
+        # ws.create_mesh_result()
 
         ws = N001_lib.Make_WaterSurface_depth_velocity_from_iRIC_result(df_col_list,usecols,filepath_folder,mat_list,color_set,result_type)
         ws.create_mesh_result()

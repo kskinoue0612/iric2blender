@@ -1,5 +1,37 @@
 import bpy
 
+# def materials_grid():
+#     """gridのマテリアルを定義"""
+#     # # 新規マテリアルを作成
+#     mat_el = bpy.data.materials.new('grid_material')
+#
+#     # Use Nodesをオンにする
+#     mat_el.use_nodes = True
+#
+#     # Node Treeにアクセス
+#     node_tree = mat_el.node_tree
+#
+#     # Material Outputノードにアクセス
+#     output = node_tree.nodes['Material Output']
+#
+#     # Principled BSDFにアクセス
+#     p_bsdf = node_tree.nodes['Principled BSDF']
+#
+#     # Blend ModeをAlpha Blendに設定
+#     mat_el.blend_method = 'BLEND'
+#
+#     # # 色を茶色に設定
+#     # # p_bsdf.inputs['Base Color'].default_value = (0.0, 0.0, 1.0, 1.0)
+#     # p_bsdf.inputs['Base Color'].default_value = (0.367,0.123,0.012, 1.0)
+#
+#     #粗さ（地面は光が反射しないため粗い方(1に近い方)がよい）
+#     p_bsdf.inputs[9].default_value = 1.
+#
+#     # # アルファチャンネル（透明度）の値を0.1に設定
+#     # p_bsdf.inputs['Alpha'].default_value = 0.9
+#
+#     return mat_gl
+
 
 def materials_elevation():
     """水の色や質感を定義"""
@@ -295,6 +327,7 @@ def mofifiers_on(obj):
 
 def voronoi_on(obj):
     #モディファイヤーを追加。DISPLACEのVoronoiを追加。水面のさざなみを表現
+    """https://ja.blingin.in/blender_threads/questions/118250/link-a-texture-to-displace-modifier-using-python"""
     tex = bpy.data.textures.new("Voronoi", 'VORONOI')
     tex.distance_metric = 'DISTANCE_SQUARED'
     modifier = obj.modifiers.new(name="Displace", type='DISPLACE')
