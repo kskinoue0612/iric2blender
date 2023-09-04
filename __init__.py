@@ -113,19 +113,34 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
         layout.label(text="閾値の設定:")
         layout.prop(scene, "para_prop_float", text="para")
         
+        # ソルバー元の設定
+        layout.separator()
+        layout.label(text="植生予測値作成元ソルバーの設定:")
+        layout.label(text="1:Nays2DH")
+        layout.label(text="2:Rvege")
+        layout.prop(scene, "type_of_solver_prop_int", text="t_solver")
+        
         # 植生描画量の設定
         layout.separator()
-        layout.label(text="植生描画量の設定:")
-        layout.label(text="1:All")
-        layout.label(text="0:Random")
-        layout.label(text="2~100:n個に一度描画")
-        layout.prop(scene, "va_prop_int", text="v_amount")
+        layout.label(text="植生描画量（割合）の設定:")
+        layout.label(text="100:すべて")
+        layout.label(text="0:ランダム")
+        layout.label(text="1~99:パーセント")
+        layout.prop(scene, "v_ratio_prop_int", text="v_ratio")
+        
+        # 翌年の植生or現在の植生表示設定
+        layout.separator()
+        layout.label(text="翌年の植生or現在の植生の設定:")
+        layout.label(text="365:翌年の植生予測")
+        layout.label(text="1~364:n日後の植生")
+        layout.label(text="0:現在の植生")
+        layout.prop(scene, "z_ratio_prop_int", text="z_ratio")
         
         # 植生の3Dモデルの設定
         layout.separator()
         layout.label(text="植生3Dモデルの設定:")
-        layout.label(text="1:light")
-        layout.label(text="2:heavy")
+        layout.label(text="1:低ポリゴン")
+        layout.label(text="2:高ポリゴン")
         layout.prop(scene, "vm_prop_int", text="v_model")
 
         # コンターの水深の設定
@@ -201,12 +216,28 @@ def init_props():
         max=1.0
     )
     
-    scene.va_prop_int = IntProperty(
-        name="v_amount",
+    scene.type_of_solver_prop_int = IntProperty(
+        name="t_solver",
         description="プロパティ（int）",
         default=1,
+        min=1,
+        max=2
+    )
+    
+    scene.v_ratio_prop_int = IntProperty(
+        name="v_ration",
+        description="プロパティ（int）",
+        default=100,
         min=0,
         max=100
+    )
+    
+    scene.z_ratio_prop_int = IntProperty(
+        name="z_ration",
+        description="プロパティ（int）",
+        default=365,
+        min=0,
+        max=365
     )
 
     scene.vm_prop_int = IntProperty(
@@ -323,7 +354,9 @@ def init_props():
 def clear_props():
     scene = bpy.types.Scene
     del scene.para_prop_float
-    del scene.va_prop_int
+    del scene.type_of_solver_prop_int
+    del scene.v_ratio_prop_int
+    del scene.z_ratio_prop_int
     del scene.vm_prop_int
     del scene.max_depth_prop_float
     del scene.min_depth_prop_float

@@ -101,6 +101,7 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
         def set_faces_trees(MI,MJ,df):
             faces=[]
             faces_tree=[]
+            ts=bpy.context.scene.type_of_solver_prop_int
 
             k=1
             for j in range(MJ-1):
@@ -108,7 +109,10 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
                     k=i+MI*j
                     if df[k][10] > 0:
                         faces.append([k,k+1,k+1+MI,k+MI])
-                        faces_tree.append([k,k+1,k+1+MI,k+MI,df[k][10],df[k][11],int(df[k][13])])
+                        if ts == 1:
+                            faces_tree.append([k,k+1,k+1+MI,k+MI,df[k][10],df[k][11],int(df[k][13]),df[k][14]])
+                        else:
+                            faces_tree.append([k,k+1,k+1+MI,k+MI,df[k][7],df[k][8],int(df[k][9]),df[k][10]])
             return faces,faces_tree
 
 
@@ -173,7 +177,7 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
             low_poly_trees     = ["pine_tree_lite","yoshi_lite"]
             mat_low_poly_trees = ['pine-leaf',"mat_yoshi"]
             high_poly_trees    = ["willow","pine","maple","broadleaf_tree"]
-            new_trees           = ["hardwood","confier","grass","normal"]
+            new_trees           = ["normal","hardwood","conifer","grass"]
 
             # # 低ポリゴンの木をインポート
             # for tree_name in low_poly_trees:
@@ -184,12 +188,11 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
             #for mat_name in mat_low_poly_trees:
             #    material_tree_link_alpha(material_name=f'{mat_name}')
 
-            # 高ポリゴンの木をもしくは低ポリゴンのnewdataの木をインポート
-            
+            # 高ポリゴンの木をもしくは低ポリゴンのnewdataの木をインポート 
             vm=bpy.context.scene.vm_prop_int
             if vm==1:
                 for tree_name in new_trees:
-                    bpy.ops.import_scene.fbx(filepath=f'{addon_dirpath}/tree_data/new_tree/{tree_name}.fbx')
+                    bpy.ops.import_scene.fbx(filepath=f'{addon_dirpath}/tree_data/new_tree_one/{tree_name}.fbx')
                 # 全ての植生を格納するリストを作成
                 trees_all=new_trees
                 trees_all.extend(low_poly_trees)
@@ -232,55 +235,116 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
                 ns   = ass*ss/ds
                 grow_tree = ns
 
-                # 確率から植生を植えるかどうかランダムに決める。植生を植える場合はgrow_tree=1を返す。
+                # 確率から植生を植えるかどうかランダムに決める。
                 #grow_tree = random.randrange(1,int(1/grow_tree),1)
                 #grow_tree =bpy.types.Scene.para_prop_float = FloatProperty(name="para",description="プロパティ（float）", default=0.5,min=0.01,max=1.0)
                 
-                #　設定した閾値より植生密生度が大きい場合植生を植える(そのときにすべて生やすかランダムか)
-                va=bpy.context.scene.va_prop_int
+                # 設定した閾値より植生密生度が大きい場合植生を植える(そのときにすべて生やすかランダムか)
                 para=bpy.context.scene.para_prop_float
-                count=0
-                ratio=0.4
-                """
-                if va==1:
-                    if faces_tree[j][4]>para:grow_tree=1,count+=1
-                    else:grow_tree=0
-                elif va==0:
-                    if faces_tree[j][4]>para:grow_tree=random.randint(0 ,1)
-                    else:grow_tree=0
+                ratio=bpy.context.scene.v_ratio_prop_int
+                zratio = bpy.context.scene.z_ratio_prop_int
+                
+                # 現在の植生を描画する(密生度が0.01以上は割合で描画)
+                if zratio == 0:
+                    if faces_tree[j][4] >= 0.01:
+                        if random.random() < (ratio/100):
+                            grow_tree = 1
+                        else:grow_tree = 0
+                # 将来の植生を描画する(予測値が閾値以上は割合で描画)
                 else:
-                    if faces_tree[j][4]>para:
-                        if j % va == 0 and j != 0:grow_tree=1
-                        else:grow_tree=0                   
-                    else:grow_tree=0
-                """
-                # しきい値を超えた値のセルは ratio の割合で生やす
-                if faces_tree[j][4] > para:
-                    if random.random() < ratio:
-                        grow_tree = 1
-                    else:grow_tree=0
-
+                    if ratio==100:
+                        if faces_tree[j][7] >= para:
+                            grow_tree = 1
+                        else:grow_tree = 0
+                    elif ratio==0:
+                        if faces_tree[j][7] >= para:
+                            grow_tree=random.randint(0 ,1)
+                        else:grow_tree = 0
+                    # 閾値を超えた値のセルは ratio の割合で生やす
+                    else:
+                        if faces_tree[j][7] >= para:
+                            if random.random() < (ratio/100):
+                                grow_tree = 1
+                            else:grow_tree=0
+                
 
                 # 植生を植える場合
                 if grow_tree==1:
-                    # 植生の位置座標zを決める。（根本の位置）
-                    zmin=min([mesh.vertices[faces_tree[j][0]].co[2],mesh.vertices[faces_tree[j][1]].co[2],mesh.vertices[faces_tree[j][2]].co[2],mesh.vertices[faces_tree[j][3]].co[2]])
-                    ztree  =faces_tree[j][5]
+                    # 植生の位置座標zを決める。（根本の位置）＋　植生の高さ
+                    # 現在の植生の場合：植生高さ通り
+                    if zratio==0:
+                        zmin =min([mesh.vertices[faces_tree[j][0]].co[2],mesh.vertices[faces_tree[j][1]].co[2],mesh.vertices[faces_tree[j][2]].co[2],mesh.vertices[faces_tree[j][3]].co[2]])
+                        ztree =faces_tree[j][5]
+                        # 植生を植えるxy座標を定義
+                        tree_cell_maxmin=([xmin,xmax],[ymin,ymax],zmin,ztree)
+
+                        # max_tree_n=1
+                        tree_n =int(math.sqrt(math.sqrt((xmax-xmin)**2)*math.sqrt((ymax-ymin)**2))/6.25)
+
+                        # 植生の種類を定義
+                        tree_name=trees_all[faces_tree[j][6]+1]
+
+                        # 植生を配置する
+                        set_trees_into_cell(tree_cell_maxmin,tree_n,tree_name)
+                        
+                    # 予測の植生の場合：予測される値がn日後どうなるか(植生が生えていく描画)
+                    else:
+                        if faces_tree[j][4] >= 0.01:
+                            zmin =min([mesh.vertices[faces_tree[j][0]].co[2],mesh.vertices[faces_tree[j][1]].co[2],mesh.vertices[faces_tree[j][2]].co[2],mesh.vertices[faces_tree[j][3]].co[2]])
+                            ztree =faces_tree[j][5]
+                            # 植生を植えるxy座標を定義
+                            tree_cell_maxmin=([xmin,xmax],[ymin,ymax],zmin,ztree)
+
+                            # max_tree_n=1
+                            tree_n =int(math.sqrt(math.sqrt((xmax-xmin)**2)*math.sqrt((ymax-ymin)**2))/6.25)
+
+                            # 植生の種類を定義
+                            tree_name=trees_all[faces_tree[j][6]+1]
+
+                            # 植生を配置する
+                            set_trees_into_cell(tree_cell_maxmin,tree_n,tree_name)
+                            
+                        else:
+                            zmin =min([mesh.vertices[faces_tree[j][0]].co[2],mesh.vertices[faces_tree[j][1]].co[2],mesh.vertices[faces_tree[j][2]].co[2],mesh.vertices[faces_tree[j][3]].co[2]])
+                            ztree  =faces_tree[j][5]*(zratio/365)
                     
-                    # 植生を植えるxy座標を定義
-                    tree_cell_maxmin=([xmin,xmax],[ymin,ymax],zmin,ztree)
+                            # 植生を植えるxy座標を定義
+                            tree_cell_maxmin=([xmin,xmax],[ymin,ymax],zmin,ztree)
 
-                    # max_tree_n=1
-                    tree_n = 1
+                            # max_tree_n=1
+                            tree_n =int(math.sqrt(math.sqrt((xmax-xmin)**2)*math.sqrt((ymax-ymin)**2))/6.25)
 
-                    # 植生の種類を定義
-                    tree_name=trees_all[faces_tree[j][6]+1]
+                            # 植生の種類を定義
+                            tree_name=trees_all[faces_tree[j][6]+1]
 
-                    # 植生を配置する
-                    set_trees_into_cell(tree_cell_maxmin,tree_n,tree_name)
+                            # 植生を配置する
+                            set_trees_into_cell(tree_cell_maxmin,tree_n,tree_name)
+                    
+                # 植生を植えない場合       
+                if grow_tree==0: 
+                    # 予測の植生の場合：予測される値がn日後どうなるか(植生がなくなる描画)
+                    if zratio > 0:
+                        zmin=min([mesh.vertices[faces_tree[j][0]].co[2],mesh.vertices[faces_tree[j][1]].co[2],mesh.vertices[faces_tree[j][2]].co[2],mesh.vertices[faces_tree[j][3]].co[2]])
+                        #現在植生が生えている:365日後なくなる　
+                        if faces_tree[j][4] >= 0.01:
+                            ztree  =faces_tree[j][5]*((365-zratio)/365)
+                            
+                            # 現在の植生の場合：無視
+
+                            # 植生を植えるxy座標を定義
+                            tree_cell_maxmin=([xmin,xmax],[ymin,ymax],zmin,ztree)
+
+                            # max_tree_n=1
+                            tree_n =int(math.sqrt(math.sqrt((xmax-xmin)**2)*math.sqrt((ymax-ymin)**2))/6.25)
+
+                            # 植生の種類を定義
+                            tree_name=trees_all[faces_tree[j][6]+1]
+
+                            # 植生を配置する
+                            set_trees_into_cell(tree_cell_maxmin,tree_n,tree_name)
+
                 j+=1
-                
-            
+   
 
             #木のサンプルを削除　
             for tree_name in trees_all:
