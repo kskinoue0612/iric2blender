@@ -243,7 +243,8 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
                 para=bpy.context.scene.para_prop_float
                 ratio=bpy.context.scene.v_ratio_prop_int
                 zratio = bpy.context.scene.z_ratio_prop_int
-                
+                print(zratio)
+                print("プリント文")
                 # 現在の植生を描画する(密生度が0.01以上は割合で描画)
                 if zratio == 0:
                     if faces_tree[j][4] >= 0.01:
