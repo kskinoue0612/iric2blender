@@ -204,13 +204,6 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
         layout.label(text="2:Rvege")
         layout.prop(scene, "type_of_solver_prop_int", text="type_of_solver")
         
-         # 翌年の植生or現在の植生表示設定
-        layout.separator()
-        layout.label(text="翌年の植生or現在の植生の設定:")
-        layout.label(text="365:翌年の植生予測")
-        layout.label(text="1~364:n日後の植生")
-        layout.label(text="0:現在の植生")
-        layout.prop(scene, "z_ratio_prop_int", text="day")
 
 
 
