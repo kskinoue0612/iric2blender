@@ -46,6 +46,7 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -55,6 +56,8 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
     def execute(self, context):
 
         def image_test():
+            """https://yuhoth.com/525/"""
+
             mat_name = "Grid_image"
             # MyMaterialが存在するかどうかを確認
             if bpy.data.materials.get(mat_name) is not None:
@@ -82,7 +85,16 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
 
         # スマートUV展開を実行する(デフォルト設定)
         def smartproject_UVmap_mesh(arg_objectname="Default") -> bool:
-            
+            """https://bluebirdofoz.hatenablog.com/entry/2020/05/26/203844"""
+            """スマートUV展開を実行する(デフォルト設定)
+
+            Keyword Arguments:
+                arg_objectname {str} -- 指定オブジェクト名 (default: {"Default"})
+
+            Returns:
+                bool -- 実行正否
+            """
+
             # 指定オブジェクトを取得する
             # (get関数は対象が存在しない場合 None が返る)
             selectob = bpy.data.objects.get(arg_objectname)

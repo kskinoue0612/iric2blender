@@ -46,6 +46,7 @@ class Import_Image_from_Grid_iRIC2blender(bpy.types.Operator):
     # 実行時イベント(保存先のフォルダの選択)
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
+        # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
         self.report({'INFO'}, "保存先のフォルダを指定してください")
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
@@ -108,7 +109,11 @@ class Import_Image_from_Grid_iRIC2blender(bpy.types.Operator):
 
 
         def simple_map(np_center,zoom1, dpi1 ,x_tile, y_tile, filepath_folder,image_url):
-              # url=["https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+            """https://blog.shikoan.com/gsi-tile/"""
+            """https://maps.gsi.go.jp/development/ichiran.html"""
+            #URL：https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg
+
+            # url=["https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
             #      "http://cyberjapandata.gsi.go.jp/xyz/dem/{z}/{x}/{y}.txt",
             #      "https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"]
 
@@ -149,6 +154,11 @@ class Import_Image_from_Grid_iRIC2blender(bpy.types.Operator):
 
 
         def simple_map_dem(np_center,zoom1,x_tile, y_tile):
+            """https://blog.shikoan.com/gsi-tile/"""
+            """https://maps.gsi.go.jp/development/ichiran.html"""
+            """https://cyberjapandata.gsi.go.jp/xyz/dem/14/14255/6519.txt"""
+            #URL：https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg
+
             url = {
                    'chiriin_dem': "https://cyberjapandata.gsi.go.jp/xyz/dem/{z}/{x}/{y}.txt"
                    }
@@ -170,6 +180,9 @@ class Import_Image_from_Grid_iRIC2blender(bpy.types.Operator):
 
 
         def Lon2Tile(lon,zoom):
+            """https://www.trail-note.net/tech/coordinate/"""
+            """https://maps.multisoup.co.jp/blog/3944/"""
+            """https://note.sngklab.jp/?p=72"""
 
             return ((lon + 180) / 360) * pow(2, zoom);
 

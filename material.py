@@ -295,6 +295,7 @@ def mofifiers_on(obj):
 
 def voronoi_on(obj):
     #モディファイヤーを追加。DISPLACEのVoronoiを追加。水面のさざなみを表現
+    """https://ja.blingin.in/blender_threads/questions/118250/link-a-texture-to-displace-modifier-using-python"""
     tex = bpy.data.textures.new("Voronoi", 'VORONOI')
     tex.distance_metric = 'DISTANCE_SQUARED'
     modifier = obj.modifiers.new(name="Displace", type='DISPLACE')
