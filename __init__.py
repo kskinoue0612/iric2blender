@@ -121,14 +121,6 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
         layout.label(text="1~99:パーセント")
         layout.prop(scene, "v_ratio_prop_int", text="vegetation_drawing_ratio")
         
-        # 翌年の植生or現在の植生表示設定
-        layout.separator()
-        layout.label(text="翌年の植生or現在の植生の設定:")
-        layout.label(text="365:翌年の植生予測")
-        layout.label(text="1~364:n日後の植生")
-        layout.label(text="0:現在の植生")
-        layout.prop(scene, "z_ratio_prop_int", text="day")
-        
         # 植生の3Dモデルの設定
         layout.separator()
         layout.label(text="植生3Dモデルの設定:")
@@ -196,19 +188,6 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
         layout.separator()
         layout.label(text="木の種類の設定:")
         layout.prop(scene, "dl_tree_type_prop_int", text="tree")
-
-        # 閾値の設定
-        layout.separator()
-        layout.label(text="閾値の設定:")
-        layout.prop(scene, "para_prop_float", text="parameter")
-        
-        # 植生描画量の設定
-        layout.separator()
-        layout.label(text="植生描画量（割合）の設定:")
-        layout.label(text="100:すべて")
-        layout.label(text="0:ランダム")
-        layout.label(text="1~99:パーセント")
-        layout.prop(scene, "v_ratio_prop_int", text="vegetation_drawing_ratio")
         
         # 翌年の植生or現在の植生表示設定
         layout.separator()
@@ -218,20 +197,20 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
         layout.label(text="0:現在の植生")
         layout.prop(scene, "z_ratio_prop_int", text="day")
         
-        # 植生の3Dモデルの設定
-        layout.separator()
-        layout.label(text="植生3Dモデルの設定:")
-        layout.label(text="1:低ポリゴン")
-        layout.label(text="2:高ポリゴン")
-        layout.label(text="3:画像")
-        layout.prop(scene, "vm_prop_int", text="vegetation_model")
-        
         # ソルバー元の設定
         layout.separator()
         layout.label(text="植生予測値作成元ソルバーの設定:")
         layout.label(text="1:Nays2DH")
         layout.label(text="2:Rvege")
         layout.prop(scene, "type_of_solver_prop_int", text="type_of_solver")
+        
+         # 翌年の植生or現在の植生表示設定
+        layout.separator()
+        layout.label(text="翌年の植生or現在の植生の設定:")
+        layout.label(text="365:翌年の植生予測")
+        layout.label(text="1~364:n日後の植生")
+        layout.label(text="0:現在の植生")
+        layout.prop(scene, "z_ratio_prop_int", text="day")
 
 
 
@@ -239,8 +218,6 @@ class IRICSETTING_PT_CustomPanel(bpy.types.Panel):
 # サイドパネル(iRIC_setting)のプロパティの初期化
 def init_props():
     scene = bpy.types.Scene
-
-   
 
     scene.max_depth_prop_float = FloatProperty(
         name="max_depth",
@@ -349,14 +326,6 @@ def init_props():
         max=1.0
     )
     
-    scene.type_of_solver_prop_int = IntProperty(
-        name="type_of_solver",
-        description="プロパティ（int）",
-        default=1,
-        min=1,
-        max=2
-    )
-    
     scene.v_ratio_prop_int = IntProperty(
         name="v_ration",
         description="プロパティ（int）",
@@ -381,6 +350,14 @@ def init_props():
         max=3
     )
 
+    scene.type_of_solver_prop_int = IntProperty(
+        name="type_of_solver",
+        description="プロパティ（int）",
+        default=1,
+        min=1,
+        max=2
+    )
+
 
 
 
@@ -388,9 +365,7 @@ def init_props():
 def clear_props():
     scene = bpy.types.Scene
     del scene.para_prop_float
-    del scene.type_of_solver_prop_int
     del scene.v_ratio_prop_int
-    del scene.z_ratio_prop_int
     del scene.vm_prop_int
     del scene.max_depth_prop_float
     del scene.min_depth_prop_float
@@ -405,11 +380,8 @@ def clear_props():
     del scene.dl_image_epsg_prop_int
     del scene.dl_image_url_prop_int
     del scene.dl_tree_type_prop_int
-    del scene.para_prop_float
     del scene.type_of_solver_prop_int
-    del scene.v_ratio_prop_int
     del scene.z_ratio_prop_int
-    del scene.vm_prop_in
 
 
 #############
