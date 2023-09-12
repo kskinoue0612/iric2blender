@@ -4,8 +4,10 @@ import os
 from os import path
 
 # オブジェクトをiricの点群csvに書き出し
+
+
 class ExportTpo2iRIC(bpy.types.Operator):
-    #ラベル名の宣言
+    # ラベル名の宣言
     bl_idname = "object.export_tpo2iric"
     bl_label = "4-1: 地形データをiRIC用にCSVで書き出し"
     bl_description = "4-1: 地形データをiRIC用にCSVで書き出し"
@@ -28,11 +30,11 @@ class ExportTpo2iRIC(bpy.types.Operator):
         description="",        # 説明文
     )
     directory: StringProperty(
-        name="Directory Path", # プロパティ名
-        default="",            # デフォルト値
-        maxlen=1024,           # 最大文字列長
-        subtype='FILE_PATH',   # サブタイプ
-        description="",        # 説明文
+        name="Directory Path",  # プロパティ名
+        default="",             # デフォルト値
+        maxlen=1024,            # 最大文字列長
+        subtype='FILE_PATH',    # サブタイプ
+        description="",         # 説明文
     )
 
     # 実行時イベント(保存先のフォルダの選択)
@@ -43,7 +45,7 @@ class ExportTpo2iRIC(bpy.types.Operator):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
-    #実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
+    # 実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
     def execute(self, context):
         active_obj = context.active_object
 
@@ -52,14 +54,14 @@ class ExportTpo2iRIC(bpy.types.Operator):
         # ファイルパスをフォルダ名の名称とファイル名の拡張子に分割する
         filepath_nameonly, filepath_ext = os.path.splitext(filepath_name)
 
-        ##書き込み
+        # 書き込み
         f = open(str(filepath_folder)+str("/out_tpo_blender2iric.csv"), 'w', encoding='UTF-8')
 
-        i=0
+        i = 0
         write_list = []
         for v in active_obj.data.vertices:
             write_list.append(f"{v.co[0]},{v.co[1]},{v.co[2]}\n")
-            i+=1
+            i += 1
         # print(write_list)
         f.writelines(write_list)
         f.close()

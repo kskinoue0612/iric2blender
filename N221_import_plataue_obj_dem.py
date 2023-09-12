@@ -7,8 +7,10 @@ import numpy as np
 # from . import material
 
 # iricの計算結果をblenderのimport
+
+
 class Import_Plataue_Obj_Dem(bpy.types.Operator):
-    #ラベル名の宣言
+    # ラベル名の宣言
     bl_idname = "object.import_plataue_obj_dem"
     bl_label = "2-2-1: Plateau DEMデータ(obj)を読み込み"
     bl_description = "2-2-1: Plateau DEMデータ(obj)を読み込み"
@@ -31,17 +33,15 @@ class Import_Plataue_Obj_Dem(bpy.types.Operator):
         description="",        # 説明文
     )
     directory: StringProperty(
-        name="Directory Path", # プロパティ名
-        default="",            # デフォルト値
-        maxlen=1024,           # 最大文字列長
-        subtype='FILE_PATH',   # サブタイプ
-        description="",        # 説明文
+        name="Directory Path",  # プロパティ名
+        default="",             # デフォルト値
+        maxlen=1024,            # 最大文字列長
+        subtype='FILE_PATH',    # サブタイプ
+        description="",         # 説明文
     )
 
-
-
-
     # 実行時イベント(保存先のフォルダの選択)
+
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
         # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
@@ -49,7 +49,7 @@ class Import_Plataue_Obj_Dem(bpy.types.Operator):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
-    #実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
+    # 実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
     def execute(self, context):
 
         def config_viewports():
@@ -62,18 +62,16 @@ class Import_Plataue_Obj_Dem(bpy.types.Operator):
                 # area.spaces.active.overlay.grid_scale = SCALE_LENGTH
                 area.spaces.active.clip_end = CLIP_END
 
-
         def read_dem(filepath_folder):
             # path = "./obj/dem"
             files = os.listdir(filepath_folder)
 
-            col_name=str(f'dem_plataue')
+            col_name = str(f'dem_plataue')
             my_sub_coll = bpy.data.collections.new(col_name)
             bpy.context.scene.collection.children.link(my_sub_coll)
 
-
             for i in files:
-                ob = bpy.ops.wm.obj_import(filepath=f'{filepath_folder}/{i}',forward_axis='Y_FORWARD', up_axis='Z_UP')
+                ob = bpy.ops.wm.obj_import(filepath=f'{filepath_folder}/{i}', forward_axis='Y_FORWARD', up_axis='Z_UP')
 
                 # # 現在のシーンにコレクションをリンク
                 ob = bpy.context.scene.collection.children[0].objects[0]
@@ -83,7 +81,6 @@ class Import_Plataue_Obj_Dem(bpy.types.Operator):
 
                 # 紐付ける前のコレクションへのリンクを解除
                 bpy.context.scene.collection.children[0].objects.unlink(ob)
-
 
         #######
 

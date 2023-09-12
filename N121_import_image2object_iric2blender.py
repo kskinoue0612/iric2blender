@@ -9,8 +9,10 @@ from . import N001_lib
 # from . import material
 
 # iricの計算結果をblenderのimport
+
+
 class Import_Image2Object_iRIC2blender(bpy.types.Operator):
-    #ラベル名の宣言
+    # ラベル名の宣言
     bl_idname = "object.import_image_iric2blender"
     bl_label = "1-2-1: 画像をBlenderの格子に貼付"
     bl_description = "1-2-1: 画像をBlenderの格子に貼付"
@@ -33,17 +35,15 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
         description="",        # 説明文
     )
     directory: StringProperty(
-        name="Directory Path", # プロパティ名
-        default="",            # デフォルト値
-        maxlen=1024,           # 最大文字列長
-        subtype='FILE_PATH',   # サブタイプ
-        description="",        # 説明文
+        name="Directory Path",  # プロパティ名
+        default="",             # デフォルト値
+        maxlen=1024,            # 最大文字列長
+        subtype='FILE_PATH',    # サブタイプ
+        description="",         # 説明文
     )
 
-
-
-
     # 実行時イベント(保存先のフォルダの選択)
+
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
         # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
@@ -51,8 +51,8 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
+    # 実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
 
-    #実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
     def execute(self, context):
 
         def image_test():
@@ -64,26 +64,24 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
                 # 存在する場合は削除
                 bpy.data.materials.remove(bpy.data.materials[mat_name])
 
-
             material = bpy.data.materials.new(mat_name)
-            material.use_nodes=True
-            pic=material.node_tree.nodes["Principled BSDF"]
+            material.use_nodes = True
+            pic = material.node_tree.nodes["Principled BSDF"]
 
-            #粗さ
+            # 粗さ
             pic.inputs[9].default_value = 1.
 
-            #スペキュラー
+            # スペキュラー
             pic.inputs[7].default_value = 0
 
-            texImage=material.node_tree.nodes.new('ShaderNodeTexImage')
-            texImage.image=bpy.data.images.load(self.filepath)#表示したい画像のパス
+            texImage = material.node_tree.nodes.new('ShaderNodeTexImage')
+            texImage.image = bpy.data.images.load(self.filepath)  # 表示したい画像のパス
             material.node_tree.links.new(pic.inputs['Base Color'], texImage.outputs['Color'])
             # print(bpy.context.object.data.materials)
-            bpy.context.object.data.materials.append(material) #材質の反映
-
-
+            bpy.context.object.data.materials.append(material)  # 材質の反映
 
         # スマートUV展開を実行する(デフォルト設定)
+
         def smartproject_UVmap_mesh(arg_objectname="Default") -> bool:
             """https://bluebirdofoz.hatenablog.com/entry/2020/05/26/203844"""
             """スマートUV展開を実行する(デフォルト設定)
@@ -141,7 +139,6 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
 
             return
 
-
         ##########
 
         # ファイルパスをフォルダパスとファイル名に分割する
@@ -149,18 +146,16 @@ class Import_Image2Object_iRIC2blender(bpy.types.Operator):
         # ファイルパスをフォルダ名の名称とファイル名の拡張子に分割する
         filepath_nameonly, filepath_ext = os.path.splitext(filepath_name)
 
-        #3d View 範囲の終了設定
+        # 3d View 範囲の終了設定
         N001_lib.config_viewports()
 
-
-        #選択したオブジェクト視点をあわせる
+        # 選択したオブジェクト視点をあわせる
         # N001_lib.framein_to_selected_object(obj_name ='iRIC_Grid_Elevation')
 
-        #イメージの貼り付け
+        # イメージの貼り付け
         image_test()
 
-        #UV展開
+        # UV展開
         smartproject_UVmap_mesh(arg_objectname=context.active_object.name)
-
 
         return {'FINISHED'}

@@ -10,7 +10,7 @@ import numpy as np
 
 # iricの計算結果をblenderのimport
 class ImportResult2DH_Color_iRIC2blender(bpy.types.Operator):
-    #ラベル名の宣言
+    # ラベル名の宣言
     bl_idname = "object.import_result2dh_color_iric2blender"
     bl_label = "3-1-1: Nays2dhの計算結果(水深/Color)の読み込み"
     bl_description = "3-1-1: Nays2dhの計算結果(水深/Color)の読み込み"
@@ -33,16 +33,15 @@ class ImportResult2DH_Color_iRIC2blender(bpy.types.Operator):
         description="",        # 説明文
     )
     directory: StringProperty(
-        name="Directory Path", # プロパティ名
-        default="",            # デフォルト値
-        maxlen=1024,           # 最大文字列長
-        subtype='FILE_PATH',   # サブタイプ
-        description="",        # 説明文
+        name="Directory Path",  # プロパティ名
+        default="",             # デフォルト値
+        maxlen=1024,            # 最大文字列長
+        subtype='FILE_PATH',    # サブタイプ
+        description="",         # 説明文
     )
 
-
-
     # 実行時イベント(保存先のフォルダの選択)
+
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
         # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
@@ -50,7 +49,7 @@ class ImportResult2DH_Color_iRIC2blender(bpy.types.Operator):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
-    #実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
+    # 実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
     def execute(self, context):
 
         #### main ####
@@ -61,22 +60,20 @@ class ImportResult2DH_Color_iRIC2blender(bpy.types.Operator):
         # ファイルパスをフォルダ名の名称とファイル名の拡張子に分割する
         # filepath_nameonly, filepath_ext = os.path.splitext(filepath_name)
 
-        #3d View 範囲の終了設定
+        # 3d View 範囲の終了設定
         N001_lib.config_viewports()
 
-        #CSVの読み込み設定
-        df_col_list = [2, 3, 4, 5, 6] #Nays2DH: x,y,depth,z,dummy
-        usecols     = [0,1,2,3,4,5,6,7,8,9,10,11,12]
+        # CSVの読み込み設定
+        df_col_list = [2, 3, 4, 5, 6]  # Nays2DH: x,y,depth,z,dummy
+        usecols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
-        #カラーコンターの設定
-        color_set   = N001_lib.setting_color_contor()
-        mat_list    = []
-        mat_list    = material.set_material(mat_list,color_set)
+        # カラーコンターの設定
+        color_set = N001_lib.setting_color_contor()
+        mat_list = []
+        mat_list = material.set_material(mat_list, color_set)
         result_type = "depth"
 
-
-
-        ws = N001_lib.Make_WaterSurface_depth_velocity_from_iRIC_result(df_col_list,usecols,filepath_folder,mat_list,color_set,result_type)
+        ws = N001_lib.Make_WaterSurface_depth_velocity_from_iRIC_result(df_col_list, usecols, filepath_folder, mat_list, color_set, result_type)
         ws.create_mesh_result()
 
         # #frame_numを1に指定

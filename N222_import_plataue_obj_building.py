@@ -8,7 +8,7 @@ from . import N001_lib
 
 # iricの計算結果をblenderのimport
 class Import_Plataue_Obj_Buidling(bpy.types.Operator):
-    #ラベル名の宣言
+    # ラベル名の宣言
     bl_idname = "object.import_plataue_obj_building"
     bl_label = "2-2-2: Plateau 建物データ(obj)を読み込み"
     bl_description = "2-2-2: Plateau 建物データ(obj)を読み込み"
@@ -31,17 +31,15 @@ class Import_Plataue_Obj_Buidling(bpy.types.Operator):
         description="",        # 説明文
     )
     directory: StringProperty(
-        name="Directory Path", # プロパティ名
+        name="Directory Path",  # プロパティ名
         default="",            # デフォルト値
         maxlen=1024,           # 最大文字列長
         subtype='FILE_PATH',   # サブタイプ
         description="",        # 説明文
     )
 
-
-
-
     # 実行時イベント(保存先のフォルダの選択)
+
     def invoke(self, context, event):
         # ファイルエクスプローラーを表示する
         # 参考URL:https://docs.blender.org/api/current/bpy.types.WindowManager.html#bpy.types.WindowManager.fileselect_add
@@ -49,8 +47,8 @@ class Import_Plataue_Obj_Buidling(bpy.types.Operator):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
+    # 実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
 
-    #実行ファイル（選択しているオブジェクトの地形データをiricの点群csvに書き出し）
     def execute(self, context):
 
         def read_obj_building(filepath_folder):
@@ -58,15 +56,14 @@ class Import_Plataue_Obj_Buidling(bpy.types.Operator):
             def read_bldg(filepath_folder):
                 files1 = os.listdir(filepath_folder)
 
-                #collection 作成
-                col_name=str(f'bldg_plataue')
+                # collection 作成
+                col_name = str(f'bldg_plataue')
                 my_sub_coll = bpy.data.collections.new(col_name)
                 bpy.context.scene.collection.children.link(my_sub_coll)
 
-
-                #import obj
+                # import obj
                 for i in files1:
-                    ob = bpy.ops.wm.obj_import(filepath=f'{filepath_folder}/{i}',forward_axis='Y_FORWARD', up_axis='Z_UP')
+                    ob = bpy.ops.wm.obj_import(filepath=f'{filepath_folder}/{i}', forward_axis='Y_FORWARD', up_axis='Z_UP')
 
                     # # 現在のシーンにコレクションをリンク
                     ob = bpy.context.scene.collection.children[0].objects[0]
@@ -86,10 +83,10 @@ class Import_Plataue_Obj_Buidling(bpy.types.Operator):
         # ファイルパスをフォルダ名の名称とファイル名の拡張子に分割する
         filepath_nameonly, filepath_ext = os.path.splitext(filepath_name)
 
-        #Plateau 建物データ(obj)を読み込み"
+        # Plateau 建物データ(obj)を読み込み"
         read_obj_building(filepath_folder)
 
-        #3d View 範囲の終了設定
+        # 3d View 範囲の終了設定
         N001_lib.config_viewports()
 
         return {'FINISHED'}
