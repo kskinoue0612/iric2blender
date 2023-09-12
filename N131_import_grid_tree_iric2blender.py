@@ -306,8 +306,8 @@ class ImportGridTree_iRIC2blender(bpy.types.Operator):
                             tree_cell_maxmin=([xmin,xmax],[ymin,ymax],zmin,ztree)
 
                             # max_tree_n=1
-                            tree_n =int(math.sqrt(math.sqrt((xmax-xmin)**2)*math.sqrt((ymax-ymin)**2))/6.25)
-
+                            tree_n =1
+                            # tree_n =int(math.sqrt(math.sqrt((xmax-xmin)**2)*math.sqrt((ymax-ymin)**2))/6.25)
                             # 植生の種類を定義
                             tree_name=trees_all[faces_tree[j][6]+1]
 
